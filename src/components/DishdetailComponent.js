@@ -5,6 +5,9 @@ import { Link } from 'react-router-dom';
 import { Button, Modal, ModalHeader, ModalBody, Row, Col, Label} from 'reactstrap';
 import { Control, LocalForm, Errors } from 'react-redux-form';
 import { Loading} from './LoadingComponent';
+import { baseUrl } from '../shared/baseUrl';
+
+import { FadeTransform, Fade, Stagger } from 'react-animation-components';
 
 const required = (val) => val && val.length;
 const maxLength = (len) => (val) => !(val) || (val.length <= len);
@@ -33,7 +36,7 @@ class CommentForm extends Component {
 
     handleSubmit = (values) => {
         this.toggleModal();
-        this.props.addComment(this.props.dishId, values.rating, values.name, values.comment);
+        this.props.postComment(this.props.dishId, values.rating, values.name, values.comment);
     }
 
     render() {
@@ -103,13 +106,15 @@ class CommentForm extends Component {
         if (dish != null)
             return(
                 <div className="col-12 col-md-5 m-1">
+                <FadeTransform in transformProps={{exitTransform: 'scale(0.5) translateY(-50%)'}}>
                 <Card>
-                    <CardImg top src={dish.image} alt={dish.name} />
+                    <CardImg top src={baseUrl + dish.image} alt={dish.name} />
                     <CardBody>
                       <CardTitle>{dish.name}</CardTitle>
                       <CardText>{dish.description}</CardText>
                     </CardBody>
                 </Card>
+                </FadeTransform>
                 </div>
             );
         else
@@ -118,28 +123,32 @@ class CommentForm extends Component {
             );
     }
 
-    function RenderComments({comments, addComment, dishId}) {
+    function RenderComments({comments, postComment, dishId}) {
         // const comments = c.map((comment) => {
 
         // });
         if (comments != null) {
+            
             const comment = comments.map((c) => {
                 return(
-
+                        <Fade in>
                         <ul className="list-unstyled">
                             <li key={c.id}>
                                 <p>{c.comment}</p>
                                 <p>-- {c.author} , {c.date}</p>
                             </li>
                         </ul>
+                        </Fade>
                 );
             });
 
             return (
                 <div className="col-12 col-md-5 m-1">
                 <h4>Comments</h4>
+                <Stagger in>
                 {comment}
-                <CommentForm dishId={dishId} addComment={addComment}/>
+                </Stagger>
+                <CommentForm dishId={dishId} postComment={postComment}/>
                 </div>
             );
          }
@@ -183,7 +192,7 @@ class CommentForm extends Component {
                 <div className="row">
                         <RenderDish dish={props.dish} />
                         <RenderComments comments={props.comments}
-                        addComment={props.addComment}
+                        postComment={props.postComment}
                         dishId={props.dish.id} />
                 </div>
                 </div>
