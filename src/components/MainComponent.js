@@ -8,7 +8,7 @@ import DishDetail from './DishdetailComponent';
 import About from './AboutComponent';
 import { Switch, Route, Redirect, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { postComment, fetchDishes, fetchComments, fetchPromos } from '../redux/ActionsCreators';
+import { postComment, fetchDishes, fetchComments, fetchPromos, fetchLeaders, postFeedback } from '../redux/ActionsCreators';
 import { actions } from 'react-redux-form';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
@@ -26,7 +26,9 @@ const mapDispatchToProps = (dispatch) => ({
   fetchDishes: () => dispatch(fetchDishes()),
   fetchComments: () => dispatch(fetchComments()),
   fetchPromos: () => dispatch(fetchPromos()),
+  fetchLeaders: () => dispatch(fetchLeaders()),
   resetFeedbackForm: () => { dispatch(actions.reset('feedback'))},
+  postFeedback: (values) => dispatch(postFeedback(values)),
 });
 
 class Main extends Component {
@@ -39,6 +41,7 @@ class Main extends Component {
     this.props.fetchDishes();
     this.props.fetchComments();
     this.props.fetchPromos();
+    this.props.fetchLeaders();
   }
 
   render() {
@@ -52,7 +55,9 @@ class Main extends Component {
                 promotion={this.props.promotions.promotions.filter((promo) => promo.featured)[0]}
                 promosLoading={this.props.promotions.isLoading}
                 promosErrMsg={this.props.promotions.errMsg}
-                leader={this.props.leaders.filter((leader) => leader.featured)[0]}
+                leader={this.props.leaders.leaders.filter((leader) => leader.featured)[0]}
+                leaderLoading={this.props.leaders.isLoading}
+                leaderErrMsg={this.props.leaders.errMsg}
             />
         );
       }
@@ -78,7 +83,7 @@ class Main extends Component {
               <Route path='/home' component={HomePage} />
               <Route exact path='/menu' component={() => <Menu dishes={this.props.dishes} />} />
               <Route path='/menu/:dishId' component={DishWithId} />
-              <Route exact path='/contactus' component={ () => <Contact resetFeedbackForm={this.props.resetFeedbackForm}/>}/>
+              <Route exact path='/contactus' component={ () => <Contact postFeedback={this.props.postFeedback} resetFeedbackForm={this.props.resetFeedbackForm}/>}/>
               <Route exact path ='/aboutus' component={() => <About leaders={this.props.leaders} />} />
               <Redirect to="/home" />
           </Switch>
